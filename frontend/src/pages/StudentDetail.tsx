@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { posPluginSdk } from "@tossplace/pos-plugin-sdk";
 import { api, PaymentHistoryItem, PaymentLink, Student } from "../lib/api";
 
 type Detail = Student & {
@@ -15,7 +16,6 @@ export default function StudentDetail() {
   const [reason, setReason] = useState("");
   const [dueDay, setDueDay] = useState("10");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
 
   async function reload() {
     if (!id) return;
@@ -32,13 +32,14 @@ export default function StudentDetail() {
   async function sendLink() {
     if (!id || !amount || !reason) return;
     setBusy(true);
-    setMessage(null);
     try {
       await api.sendPaymentLink(id, Number(amount), reason);
-      setMessage("결제링크를 발송했습니다.");
+      posPluginSdk.toast.success({ message: "결제링크를 발송했습니다." });
       setAmount("");
       setReason("");
       await reload();
+    } catch (err) {
+      posPluginSdk.toast.error({ message: err instanceof Error ? err.message : "결제링크 발송 실패" });
     } finally {
       setBusy(false);
     }
@@ -47,11 +48,12 @@ export default function StudentDetail() {
   async function registerBilling() {
     if (!id) return;
     setBusy(true);
-    setMessage(null);
     try {
-      const { registrationUrl } = await api.registerBilling(id, Number(dueDay));
-      setMessage(`정기결제 등록창을 발송했습니다: ${registrationUrl}`);
+      await api.registerBilling(id, Number(dueDay));
+      posPluginSdk.toast.success({ message: "정기결제 등록창을 학부모에게 발송했습니다." });
       await reload();
+    } catch (err) {
+      posPluginSdk.toast.error({ message: err instanceof Error ? err.message : "정기결제 등록 실패" });
     } finally {
       setBusy(false);
     }
@@ -62,7 +64,10 @@ export default function StudentDetail() {
     setBusy(true);
     try {
       await api.cancelBilling(id);
+      posPluginSdk.toast.success({ message: "정기결제를 해지했습니다." });
       await reload();
+    } catch (err) {
+      posPluginSdk.toast.error({ message: err instanceof Error ? err.message : "정기결제 해지 실패" });
     } finally {
       setBusy(false);
     }
@@ -78,12 +83,6 @@ export default function StudentDetail() {
           {student.courseName} · {student.monthlyFee.toLocaleString()}원 · {student.guardianPhone}
         </div>
       </div>
-
-      {message && (
-        <div className="card" style={{ fontSize: 13, color: "#3182f6" }}>
-          {message}
-        </div>
-      )}
 
       <div className="card">
         <strong>결제링크 보내기</strong>

@@ -40,21 +40,43 @@ export interface DashboardData {
   }[];
 }
 
-// 로컬 개발: Vite 프록시가 있어 비워두면 됨.
-// 배포(zip): 토스 호스팅 도메인엔 /api 프록시가 없으므로 실제 백엔드 URL을 명시해야 함.
-const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+import { posPluginSdk } from "@tossplace/pos-plugin-sdk";
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}/api${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error || `요청 실패 (${res.status})`);
+// 토스 POS 웹뷰(iframe) 안에서는 일반 fetch/XHR이 아니라
+// posPluginSdk.http 브릿지로만 외부(우리 백엔드) 호출이 허용된다.
+// 배포(zip)엔 프록시가 없으므로 백엔드 URL을 명시해야 함 (.env.production 참고).
+const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+const JSON_HEADERS: [string, string][] = [["Content-Type", "application/json"]];
+
+async function request<T>(
+  path: string,
+  method: "GET" | "POST" | "PATCH" | "DELETE" = "GET",
+  body?: unknown
+): Promise<T> {
+  const url = `${API_BASE}/api${path}`;
+  const res =
+    method === "GET"
+      ? await posPluginSdk.http.get(url, JSON_HEADERS)
+      : method === "DELETE"
+        ? await posPluginSdk.http.delete(url, JSON_HEADERS)
+        : method === "PATCH"
+          ? await posPluginSdk.http.patch(url, body, JSON_HEADERS)
+          : await posPluginSdk.http.post(url, body, JSON_HEADERS);
+
+  if (res.code >= 400) {
+    const parsed = safeParse<{ error?: string }>(res.body);
+    throw new Error(parsed?.error || `요청 실패 (${res.code})`);
   }
-  if (res.status === 204) return undefined as T;
-  return res.json();
+  if (res.code === 204 || !res.body) return undefined as T;
+  return JSON.parse(res.body) as T;
+}
+
+function safeParse<T>(body: string): T | undefined {
+  try {
+    return JSON.parse(body) as T;
+  } catch {
+    return undefined;
+  }
 }
 
 export const api = {
@@ -68,18 +90,11 @@ export const api = {
       }
     >(`/students/${id}`),
   createStudent: (data: Pick<Student, "name" | "guardianPhone" | "courseName" | "monthlyFee">) =>
-    request<Student>("/students", { method: "POST", body: JSON.stringify(data) }),
+    request<Student>("/students", "POST", data),
   sendPaymentLink: (studentId: string, amount: number, reason: string) =>
-    request<PaymentLink>("/payment-links", {
-      method: "POST",
-      body: JSON.stringify({ studentId, amount, reason }),
-    }),
+    request<PaymentLink>("/payment-links", "POST", { studentId, amount, reason }),
   registerBilling: (studentId: string, dueDay: number) =>
-    request<{ registrationUrl: string }>("/billing/register", {
-      method: "POST",
-      body: JSON.stringify({ studentId, dueDay }),
-    }),
-  cancelBilling: (studentId: string) =>
-    request<void>(`/billing/${studentId}/cancel`, { method: "POST" }),
+    request<{ registrationUrl: string }>("/billing/register", "POST", { studentId, dueDay }),
+  cancelBilling: (studentId: string) => request<void>(`/billing/${studentId}/cancel`, "POST"),
   getDashboard: () => request<DashboardData>("/dashboard"),
 };
