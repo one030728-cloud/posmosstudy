@@ -31,6 +31,15 @@ export interface DashboardData {
   unpaidStudents: { id: string; name: string; monthlyFee: number }[];
 }
 
+export interface ScheduledBulkLink {
+  id: string;
+  studentIds: string[];
+  amount: number;
+  reason: string;
+  scheduledAt: string;
+  status: string;
+}
+
 import { posPluginSdk } from "@tossplace/pos-plugin-sdk";
 
 // 토스 POS 웹뷰(iframe) 안에서는 일반 fetch/XHR이 아니라
@@ -83,5 +92,13 @@ export const api = {
     request<Student>("/students", "POST", data),
   sendPaymentLink: (studentId: string, amount: number, reason: string) =>
     request<PaymentLink>("/payment-links", "POST", { studentId, amount, reason }),
+  sendBulkPaymentLinks: (studentIds: string[], amount: number, reason: string, scheduledAt?: string) =>
+    request<{ scheduled: boolean; sentCount?: number; totalCount?: number; job?: ScheduledBulkLink }>(
+      "/payment-links/bulk",
+      "POST",
+      { studentIds, amount, reason, scheduledAt }
+    ),
+  listScheduledBulkLinks: () => request<ScheduledBulkLink[]>("/payment-links/scheduled"),
+  cancelScheduledBulkLink: (id: string) => request<void>(`/payment-links/scheduled/${id}`, "DELETE"),
   getDashboard: () => request<DashboardData>("/dashboard"),
 };

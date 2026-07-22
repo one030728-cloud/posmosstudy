@@ -5,6 +5,7 @@ import { studentsRouter } from "./routes/students";
 import { paymentLinksRouter } from "./routes/paymentLinks";
 import { webhooksRouter } from "./routes/webhooks";
 import { dashboardRouter } from "./routes/dashboard";
+import { startBulkLinkScheduler } from "./services/bulkLinkScheduler";
 import { tossMode } from "./lib/tossClient";
 
 const allowedOrigins = process.env.ALLOWED_ORIGIN?.split(",").map((o) => o.trim()).filter(Boolean);
@@ -23,4 +24,5 @@ app.use("/api/dashboard", dashboardRouter);
 const port = Number(process.env.PORT) || 4000;
 app.listen(port, () => {
   console.log(`[server] http://localhost:${port} (TOSS_MODE=${tossMode})`);
+  startBulkLinkScheduler();
 });
