@@ -40,8 +40,12 @@ export interface DashboardData {
   }[];
 }
 
+// 로컬 개발: Vite 프록시가 있어 비워두면 됨.
+// 배포(zip): 토스 호스팅 도메인엔 /api 프록시가 없으므로 실제 백엔드 URL을 명시해야 함.
+const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE}/api${path}`, {
     headers: { "Content-Type": "application/json" },
     ...init,
   });
