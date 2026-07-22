@@ -32,7 +32,11 @@ billingRouter.post("/register", async (req, res) => {
     create: { studentId, dueDay, nextRunAt },
   });
 
-  const { registrationUrl } = await issueBillingKeyRegistration({ studentId, customerKey });
+  const { registrationUrl } = await issueBillingKeyRegistration({
+    studentId,
+    customerKey,
+    amount: student.monthlyFee,
+  });
 
   // TODO: 실제로는 여기서 student.guardianPhone 으로 registrationUrl 문자 발송
   console.log(`[문자 발송 (mock)] ${student.guardianPhone} 에게 빌링키 등록창 전송: ${registrationUrl}`);

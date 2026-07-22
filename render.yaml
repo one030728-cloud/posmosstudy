@@ -21,6 +21,10 @@ services:
         sync: false
       - key: TOSSPAYMENTS_SECRET_KEY
         sync: false
+      - key: TOSSPAYMENTS_CLIENT_KEY
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
       - key: TOSSPLACE_ACCESS_KEY
         sync: false
       - key: TOSSPLACE_SECRET_KEY

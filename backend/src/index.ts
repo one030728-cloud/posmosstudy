@@ -4,6 +4,7 @@ import cors from "cors";
 import { studentsRouter } from "./routes/students";
 import { paymentLinksRouter } from "./routes/paymentLinks";
 import { billingRouter } from "./routes/billing";
+import { billingRegisterRouter } from "./routes/billingRegister";
 import { webhooksRouter } from "./routes/webhooks";
 import { dashboardRouter } from "./routes/dashboard";
 import { startBillingScheduler } from "./services/billingScheduler";
@@ -22,6 +23,7 @@ app.use("/api/payment-links", paymentLinksRouter);
 app.use("/api/billing", billingRouter);
 app.use("/api/webhooks", webhooksRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/billing-register", billingRegisterRouter); // 학부모가 SMS로 여는 카드 등록 페이지 (JSON API 아님)
 
 const port = Number(process.env.PORT) || 4000;
 app.listen(port, () => {
