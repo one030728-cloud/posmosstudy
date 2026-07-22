@@ -1,0 +1,31 @@
+databases:
+  - name: tossacademy-db
+    plan: free
+
+services:
+  - type: web
+    name: tossacademy-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tossacademy-db
+          property: connectionString
+      - key: TOSS_MODE
+        value: mock
+      - key: ALLOWED_ORIGIN
+        sync: false
+      - key: TOSSPAYMENTS_SECRET_KEY
+        sync: false
+      - key: TOSSPLACE_ACCESS_KEY
+        sync: false
+      - key: TOSSPLACE_SECRET_KEY
+        sync: false
+      - key: TOSSPLACE_MERCHANT_ID
+        sync: false
+      - key: TOSS_WEBHOOK_SECRET
+        sync: false

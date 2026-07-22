@@ -9,8 +9,10 @@ import { dashboardRouter } from "./routes/dashboard";
 import { startBillingScheduler } from "./services/billingScheduler";
 import { tossMode } from "./lib/tossClient";
 
+const allowedOrigins = process.env.ALLOWED_ORIGIN?.split(",").map((o) => o.trim()).filter(Boolean);
+
 const app = express();
-app.use(cors());
+app.use(cors(allowedOrigins?.length ? { origin: allowedOrigins } : {}));
 app.use(express.json());
 
 app.get("/health", (_req, res) => res.json({ ok: true, tossMode }));

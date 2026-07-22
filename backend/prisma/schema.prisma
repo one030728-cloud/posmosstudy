@@ -3,26 +3,25 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// SQLite는 Prisma enum을 지원하지 않아 String으로 관리한다.
-// StudentStatus: ACTIVE | PAUSED | WITHDRAWN
-// BillingKeyStatus: PENDING | ACTIVE | FAILED_REGISTRATION | REVOKED
-// PaymentLinkStatus: WAITING | PAID | EXPIRED | CANCELED
-// PaymentType: LINKPAY | BILLING
-// PaymentStatus: SUCCESS | FAILED
+enum StudentStatus {
+  ACTIVE
+  PAUSED
+  WITHDRAWN
+}
 
 model Student {
-  id            String   @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String
   guardianPhone String
   courseName    String
   monthlyFee    Int
-  status        String   @default("ACTIVE")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  status        StudentStatus @default(ACTIVE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   billingKey      BillingKey?
   billingSchedule BillingSchedule?
@@ -30,40 +29,64 @@ model Student {
   paymentHistory  PaymentHistory[]
 }
 
+enum BillingKeyStatus {
+  PENDING
+  ACTIVE
+  FAILED_REGISTRATION
+  REVOKED
+}
+
 model BillingKey {
-  id          String    @id @default(cuid())
-  studentId   String    @unique
-  student     Student   @relation(fields: [studentId], references: [id])
-  customerKey String    @unique
+  id          String           @id @default(cuid())
+  studentId   String           @unique
+  student     Student          @relation(fields: [studentId], references: [id])
+  customerKey String           @unique
   billingKey  String?
   cardLast4   String?
-  status      String    @default("PENDING")
+  status      BillingKeyStatus @default(PENDING)
   issuedAt    DateTime?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime         @default(now())
+}
+
+enum PaymentLinkStatus {
+  WAITING
+  PAID
+  EXPIRED
+  CANCELED
 }
 
 model PaymentLink {
-  id         String    @id @default(cuid())
+  id         String            @id @default(cuid())
   studentId  String
-  student    Student   @relation(fields: [studentId], references: [id])
-  productKey String    @unique
+  student    Student           @relation(fields: [studentId], references: [id])
+  productKey String            @unique
   url        String
   amount     Int
   reason     String
-  status     String    @default("WAITING")
-  sentAt     DateTime  @default(now())
+  status     PaymentLinkStatus @default(WAITING)
+  sentAt     DateTime          @default(now())
   paidAt     DateTime?
 }
 
+enum PaymentType {
+  LINKPAY
+  BILLING
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+}
+
 model PaymentHistory {
-  id         String   @id @default(cuid())
+  id         String        @id @default(cuid())
   studentId  String
-  student    Student  @relation(fields: [studentId], references: [id])
-  type       String
+  student    Student       @relation(fields: [studentId], references: [id])
+  type       PaymentType
   amount     Int
-  status     String
+  status     PaymentStatus
   failReason String?
-  paidAt     DateTime @default(now())
+  paidAt     DateTime      @default(now())
 }
 
 model BillingSchedule {
