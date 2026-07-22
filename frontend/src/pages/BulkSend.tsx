@@ -112,7 +112,7 @@ export default function BulkSend() {
           </label>
         ))}
         {students.length === 0 && (
-          <p style={{ color: "#8b95a1", fontSize: 13 }}>등록된 원생이 없습니다.</p>
+          <p style={{ color: "#8b95a1", fontSize: 14 }}>등록된 원생이 없습니다.</p>
         )}
       </div>
 
@@ -154,7 +154,7 @@ export default function BulkSend() {
           <strong>예약된 발송</strong>
           {jobs.map((j) => (
             <div key={j.id} className="row" style={{ marginTop: 8 }}>
-              <span style={{ fontSize: 13 }}>
+              <span style={{ fontSize: 14 }}>
                 {new Date(j.scheduledAt).toLocaleString()} · {j.studentIds.length}명 · {j.amount.toLocaleString()}원
               </span>
               <button className="secondary" onClick={() => cancelJob(j.id)} type="button">

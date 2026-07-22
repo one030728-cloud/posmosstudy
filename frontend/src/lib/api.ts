@@ -90,6 +90,7 @@ export const api = {
     >(`/students/${id}`),
   createStudent: (data: Pick<Student, "name" | "guardianPhone" | "courseName" | "monthlyFee">) =>
     request<Student>("/students", "POST", data),
+  deleteStudent: (id: string) => request<void>(`/students/${id}`, "DELETE"),
   sendPaymentLink: (studentId: string, amount: number, reason: string) =>
     request<PaymentLink>("/payment-links", "POST", { studentId, amount, reason }),
   sendBulkPaymentLinks: (studentIds: string[], amount: number, reason: string, scheduledAt?: string) =>

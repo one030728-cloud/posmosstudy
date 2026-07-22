@@ -28,7 +28,7 @@ export default function Dashboard() {
           </div>
         ))}
         {data.unpaidCount === 0 && (
-          <p style={{ color: "#8b95a1", fontSize: 13 }}>미납 원생이 없습니다.</p>
+          <p style={{ color: "#8b95a1", fontSize: 14 }}>미납 원생이 없습니다.</p>
         )}
       </div>
     </div>

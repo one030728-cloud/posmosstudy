@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { posPluginSdk } from "@tossplace/pos-plugin-sdk";
 import { api, PaymentHistoryItem, PaymentLink, Student } from "../lib/api";
 
@@ -10,11 +10,13 @@ type Detail = Student & {
 
 export default function StudentDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [student, setStudent] = useState<Detail | null>(null);
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   async function reload() {
     if (!id) return;
@@ -51,11 +53,25 @@ export default function StudentDetail() {
     }
   }
 
+  async function deleteStudent() {
+    if (!id) return;
+    setBusy(true);
+    try {
+      await api.deleteStudent(id);
+      posPluginSdk.toast.success({ message: "원생을 삭제했습니다." });
+      navigate("/");
+    } catch (err) {
+      posPluginSdk.toast.error({ message: err instanceof Error ? err.message : "원생 삭제 실패" });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div>
       <div className="card">
         <strong>{student.name}</strong>
-        <div style={{ fontSize: 13, color: "#8b95a1" }}>
+        <div style={{ fontSize: 14, color: "#8b95a1" }}>
           {student.courseName} · {student.monthlyFee.toLocaleString()}원 · {student.guardianPhone}
         </div>
       </div>
@@ -76,7 +92,7 @@ export default function StudentDetail() {
       <div className="card">
         <strong>결제 이력</strong>
         {student.paymentHistory.length === 0 && (
-          <p style={{ color: "#8b95a1", fontSize: 13 }}>결제 이력이 없습니다.</p>
+          <p style={{ color: "#8b95a1", fontSize: 14 }}>결제 이력이 없습니다.</p>
         )}
         {student.paymentHistory.map((p) => (
           <div key={p.id} className="row" style={{ marginTop: 8 }}>
@@ -86,6 +102,33 @@ export default function StudentDetail() {
             </span>
           </div>
         ))}
+      </div>
+
+      <div className="card">
+        {confirmingDelete ? (
+          <div>
+            <p style={{ fontSize: 14, color: "#4e5968", marginTop: 0, marginBottom: 10 }}>
+              정말 삭제하시겠어요? 결제 이력도 함께 삭제됩니다.
+            </p>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                className="secondary"
+                style={{ flex: 1 }}
+                onClick={() => setConfirmingDelete(false)}
+                disabled={busy}
+              >
+                취소
+              </button>
+              <button className="danger" style={{ flex: 1 }} onClick={deleteStudent} disabled={busy}>
+                {busy ? "삭제 중..." : "삭제 확인"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button className="danger" onClick={() => setConfirmingDelete(true)} disabled={busy}>
+            원생 삭제
+          </button>
+        )}
       </div>
     </div>
   );

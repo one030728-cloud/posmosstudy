@@ -37,7 +37,7 @@ enum PaymentLinkStatus {
 model PaymentLink {
   id         String            @id @default(cuid())
   studentId  String
-  student    Student           @relation(fields: [studentId], references: [id])
+  student    Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
   productKey String            @unique
   url        String
   amount     Int
@@ -55,7 +55,7 @@ enum PaymentStatus {
 model PaymentHistory {
   id         String        @id @default(cuid())
   studentId  String
-  student    Student       @relation(fields: [studentId], references: [id])
+  student    Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
   amount     Int
   status     PaymentStatus
   failReason String?

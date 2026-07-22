@@ -48,7 +48,7 @@ export default function StudentList() {
             <div className="row">
               <div>
                 <strong>{s.name}</strong>
-                <div style={{ fontSize: 13, color: "#8b95a1", marginTop: 4 }}>
+                <div style={{ fontSize: 14, color: "#8b95a1", marginTop: 4 }}>
                   {s.courseName} · {s.monthlyFee.toLocaleString()}원
                 </div>
               </div>
