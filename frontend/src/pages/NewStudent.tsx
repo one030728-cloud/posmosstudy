@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { posPluginSdk } from "@tossplace/pos-plugin-sdk";
 import { api } from "../lib/api";
 
 export default function NewStudent() {
@@ -20,7 +21,10 @@ export default function NewStudent() {
         courseName,
         monthlyFee: Number(monthlyFee),
       });
+      posPluginSdk.toast.success({ message: "원생을 등록했습니다." });
       navigate("/");
+    } catch (err) {
+      posPluginSdk.toast.error({ message: err instanceof Error ? err.message : "원생 등록 실패" });
     } finally {
       setSubmitting(false);
     }

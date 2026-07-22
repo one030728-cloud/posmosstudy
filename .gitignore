@@ -3,6 +3,7 @@ dist/
 .env
 *.log
 *.tsbuildinfo
+*.zip
 
 # SQLite dev db (로컬 개발용, 커밋 불필요)
 backend/prisma/dev.db
