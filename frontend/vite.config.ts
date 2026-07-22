@@ -18,6 +18,7 @@ function copyIframeManifest(): Plugin {
 
 export default defineConfig({
   root: "public",
+  envDir: "..", // root=public이라도 .env.production은 frontend/ 바로 아래서 찾도록
   publicDir: false,
   base: "./", // zip으로 배포되어 어떤 하위 경로에 호스팅될지 몰라 상대경로 사용
   plugins: [react(), copyIframeManifest()],
