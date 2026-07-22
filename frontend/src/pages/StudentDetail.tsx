@@ -16,17 +16,25 @@ export default function StudentDetail() {
   const [reason, setReason] = useState("");
   const [dueDay, setDueDay] = useState("10");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function reload() {
     if (!id) return;
-    const data = await api.getStudent(id);
-    setStudent(data);
+    try {
+      const data = await api.getStudent(id);
+      setStudent(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "학생 정보를 불러오지 못했습니다";
+      setError(message);
+      posPluginSdk.toast.error({ message });
+    }
   }
 
   useEffect(() => {
     reload();
   }, [id]);
 
+  if (error) return <p style={{ color: "#f04452" }}>에러: {error}</p>;
   if (!student) return <p>불러오는 중...</p>;
 
   async function sendLink() {

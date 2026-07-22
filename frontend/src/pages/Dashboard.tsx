@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
+import { posPluginSdk } from "@tossplace/pos-plugin-sdk";
 import { api, DashboardData } from "../lib/api";
 
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.getDashboard().then(setData);
+    api.getDashboard().then(setData).catch((err) => {
+      const message = err instanceof Error ? err.message : "대시보드를 불러오지 못했습니다";
+      setError(message);
+      posPluginSdk.toast.error({ message });
+    });
   }, []);
 
+  if (error) return <p style={{ color: "#f04452" }}>에러: {error}</p>;
   if (!data) return <p>불러오는 중...</p>;
 
   return (
