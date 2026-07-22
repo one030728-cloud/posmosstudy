@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma";
 
 export const dashboardRouter = Router();
 
-// 이번 달 미납자 + 정기결제 실패 건
+// 이번 달 미납자
 dashboardRouter.get("/", async (_req, res) => {
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
@@ -18,15 +18,8 @@ dashboardRouter.get("/", async (_req, res) => {
     (s) => !s.paymentHistory.some((p) => p.status === "SUCCESS")
   );
 
-  const recentFailures = await prisma.paymentHistory.findMany({
-    where: { status: "FAILED", paidAt: { gte: startOfMonth } },
-    include: { student: true },
-    orderBy: { paidAt: "desc" },
-  });
-
   res.json({
     unpaidCount: unpaid.length,
     unpaidStudents: unpaid.map((s) => ({ id: s.id, name: s.name, monthlyFee: s.monthlyFee })),
-    recentFailures,
   });
 });

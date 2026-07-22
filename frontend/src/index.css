@@ -5,7 +5,7 @@
 body {
   margin: 0;
   font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif;
-  background: #f5f6f8;
+  background: #f2f4f6;
   color: #191f28;
 }
 
@@ -13,26 +13,39 @@ a {
   color: inherit;
 }
 
-.tabbar {
-  display: flex;
-  border-bottom: 1px solid #e5e8eb;
-  background: #fff;
+/* 토스 POS 네이티브 화면처럼: 짙은 남색 헤더 하나에 타이틀+탭을 같이 배치 */
+.topbar {
   position: sticky;
   top: 0;
+  z-index: 10;
+  background: #17181c;
+  padding: 14px 16px 0;
+}
+
+.topbar-title {
+  display: block;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.tabbar {
+  display: flex;
+  gap: 20px;
 }
 
 .tabbar a {
-  flex: 1;
-  text-align: center;
-  padding: 14px 0;
+  padding-bottom: 12px;
   text-decoration: none;
   color: #8b95a1;
   font-weight: 600;
   font-size: 14px;
+  border-bottom: 2px solid transparent;
 }
 
 .tabbar a.active {
-  color: #3182f6;
+  color: #fff;
   border-bottom: 2px solid #3182f6;
 }
 
@@ -44,7 +57,7 @@ a {
 
 .card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 16px;
   margin-bottom: 12px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -58,7 +71,7 @@ a {
 
 .badge {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 4px 8px;
   border-radius: 6px;
 }
@@ -81,10 +94,20 @@ a {
 button {
   cursor: pointer;
   border: none;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-weight: 600;
-  font-size: 14px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 15px;
+  transition: opacity 0.15s;
+}
+
+button:active {
+  opacity: 0.85;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 button.primary {
@@ -101,17 +124,24 @@ button.secondary {
 input,
 select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid #e5e8eb;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 10px;
+  font-size: 15px;
   margin-bottom: 10px;
+  background: #fff;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3182f6;
 }
 
 label {
   font-size: 13px;
   color: #4e5968;
-  font-weight: 600;
+  font-weight: 700;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }

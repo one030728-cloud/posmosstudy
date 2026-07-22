@@ -23,29 +23,8 @@ model Student {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  billingKey      BillingKey?
-  billingSchedule BillingSchedule?
-  paymentLinks    PaymentLink[]
-  paymentHistory  PaymentHistory[]
-}
-
-enum BillingKeyStatus {
-  PENDING
-  ACTIVE
-  FAILED_REGISTRATION
-  REVOKED
-}
-
-model BillingKey {
-  id          String           @id @default(cuid())
-  studentId   String           @unique
-  student     Student          @relation(fields: [studentId], references: [id])
-  customerKey String           @unique
-  billingKey  String?
-  cardLast4   String?
-  status      BillingKeyStatus @default(PENDING)
-  issuedAt    DateTime?
-  createdAt   DateTime         @default(now())
+  paymentLinks   PaymentLink[]
+  paymentHistory PaymentHistory[]
 }
 
 enum PaymentLinkStatus {
@@ -68,11 +47,6 @@ model PaymentLink {
   paidAt     DateTime?
 }
 
-enum PaymentType {
-  LINKPAY
-  BILLING
-}
-
 enum PaymentStatus {
   SUCCESS
   FAILED
@@ -82,19 +56,8 @@ model PaymentHistory {
   id         String        @id @default(cuid())
   studentId  String
   student    Student       @relation(fields: [studentId], references: [id])
-  type       PaymentType
   amount     Int
   status     PaymentStatus
   failReason String?
   paidAt     DateTime      @default(now())
-}
-
-model BillingSchedule {
-  id         String   @id @default(cuid())
-  studentId  String   @unique
-  student    Student  @relation(fields: [studentId], references: [id])
-  dueDay     Int
-  nextRunAt  DateTime
-  retryCount Int      @default(0)
-  active     Boolean  @default(true)
 }

@@ -29,36 +29,12 @@ webhooksRouter.post("/linkpay", async (req, res) => {
     await prisma.paymentHistory.create({
       data: {
         studentId: link.studentId,
-        type: "LINKPAY",
         amount: link.amount,
         status: "SUCCESS",
         paidAt: new Date(),
       },
     });
   }
-
-  res.json(updated);
-});
-
-/**
- * 빌링키 등록 결과 웹훅 (본인인증 + 카드 등록 완료 후 토스가 호출).
- * 예상 payload: { customerKey, billingKey, cardLast4 }
- */
-webhooksRouter.post("/billing-key", async (req, res) => {
-  const { customerKey, billingKey, cardLast4 } = req.body;
-  if (!customerKey || !billingKey) {
-    return res.status(400).json({ error: "customerKey, billingKey는 필수입니다." });
-  }
-
-  const updated = await prisma.billingKey.update({
-    where: { customerKey },
-    data: {
-      billingKey,
-      cardLast4,
-      status: "ACTIVE",
-      issuedAt: new Date(),
-    },
-  });
 
   res.json(updated);
 });

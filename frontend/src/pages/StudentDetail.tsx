@@ -6,7 +6,6 @@ import { api, PaymentHistoryItem, PaymentLink, Student } from "../lib/api";
 type Detail = Student & {
   paymentLinks: PaymentLink[];
   paymentHistory: PaymentHistoryItem[];
-  billingSchedule?: { dueDay: number; active: boolean } | null;
 };
 
 export default function StudentDetail() {
@@ -14,7 +13,6 @@ export default function StudentDetail() {
   const [student, setStudent] = useState<Detail | null>(null);
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
-  const [dueDay, setDueDay] = useState("10");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,36 +51,6 @@ export default function StudentDetail() {
     }
   }
 
-  async function registerBilling() {
-    if (!id) return;
-    setBusy(true);
-    try {
-      await api.registerBilling(id, Number(dueDay));
-      posPluginSdk.toast.success({ message: "정기결제 등록창을 학부모에게 발송했습니다." });
-      await reload();
-    } catch (err) {
-      posPluginSdk.toast.error({ message: err instanceof Error ? err.message : "정기결제 등록 실패" });
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function cancelBilling() {
-    if (!id) return;
-    setBusy(true);
-    try {
-      await api.cancelBilling(id);
-      posPluginSdk.toast.success({ message: "정기결제를 해지했습니다." });
-      await reload();
-    } catch (err) {
-      posPluginSdk.toast.error({ message: err instanceof Error ? err.message : "정기결제 해지 실패" });
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const billingActive = student.billingSchedule?.active && student.billingKey?.status === "ACTIVE";
-
   return (
     <div>
       <div className="card">
@@ -106,43 +74,13 @@ export default function StudentDetail() {
       </div>
 
       <div className="card">
-        <strong>정기결제 (자동 수강료 청구)</strong>
-        {billingActive ? (
-          <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: 13, color: "#4e5968" }}>
-              매월 {student.billingSchedule?.dueDay}일 자동 청구 중 (카드 •••• {student.billingKey?.cardLast4})
-            </div>
-            <button className="secondary" style={{ marginTop: 10 }} onClick={cancelBilling} disabled={busy}>
-              정기결제 해지
-            </button>
-          </div>
-        ) : (
-          <div style={{ marginTop: 10 }}>
-            <label>매월 결제일</label>
-            <select value={dueDay} onChange={(e) => setDueDay(e.target.value)}>
-              {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
-                <option key={d} value={d}>
-                  {d}일
-                </option>
-              ))}
-            </select>
-            <button className="primary" onClick={registerBilling} disabled={busy}>
-              정기결제 등록창 보내기
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="card">
         <strong>결제 이력</strong>
         {student.paymentHistory.length === 0 && (
           <p style={{ color: "#8b95a1", fontSize: 13 }}>결제 이력이 없습니다.</p>
         )}
         {student.paymentHistory.map((p) => (
           <div key={p.id} className="row" style={{ marginTop: 8 }}>
-            <span>
-              {p.type === "LINKPAY" ? "결제링크" : "정기결제"} · {new Date(p.paidAt).toLocaleDateString()}
-            </span>
+            <span>{new Date(p.paidAt).toLocaleDateString()}</span>
             <span className={`badge ${p.status === "SUCCESS" ? "success" : "fail"}`}>
               {p.amount.toLocaleString()}원 {p.status === "SUCCESS" ? "완료" : "실패"}
             </span>

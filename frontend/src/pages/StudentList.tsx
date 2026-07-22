@@ -47,11 +47,6 @@ export default function StudentList() {
               </div>
               {statusBadge(s.thisMonthStatus)}
             </div>
-            {s.billingKey?.status === "ACTIVE" && (
-              <div style={{ fontSize: 12, color: "#3182f6", marginTop: 6 }}>
-                정기결제 등록됨 (카드 •••• {s.billingKey.cardLast4 ?? "----"})
-              </div>
-            )}
           </div>
         </Link>
       ))}

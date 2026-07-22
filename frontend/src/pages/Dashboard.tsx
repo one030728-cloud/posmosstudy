@@ -31,22 +31,6 @@ export default function Dashboard() {
           <p style={{ color: "#8b95a1", fontSize: 13 }}>미납 원생이 없습니다.</p>
         )}
       </div>
-
-      <div className="card">
-        <strong>정기결제 실패 내역</strong>
-        {data.recentFailures.length === 0 && (
-          <p style={{ color: "#8b95a1", fontSize: 13 }}>이번 달 실패 건이 없습니다.</p>
-        )}
-        {data.recentFailures.map((f) => (
-          <div key={f.id} style={{ marginTop: 8 }}>
-            <div className="row">
-              <span>{f.student.name}</span>
-              <span className="badge fail">{f.amount.toLocaleString()}원</span>
-            </div>
-            <div style={{ fontSize: 12, color: "#8b95a1" }}>{f.failReason}</div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

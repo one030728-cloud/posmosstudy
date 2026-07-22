@@ -17,37 +17,10 @@ interface CreateLinkPayProductResult {
   url: string;
 }
 
-interface IssueBillingKeyInput {
-  studentId: string;
-  customerKey: string;
-  amount: number;
-}
-
-interface IssueBillingKeyResult {
-  registrationUrl: string;
-}
-
-interface ChargeBillingInput {
-  customerKey: string;
-  billingKey: string;
-  amount: number;
-  orderName: string;
-}
-
-interface ChargeBillingResult {
-  success: boolean;
-  failReason?: string;
-}
-
 function assertLiveKeys() {
   if (!process.env.TOSSPAYMENTS_SECRET_KEY) {
     throw new Error(
       "TOSS_MODE=live 이지만 TOSSPAYMENTS_SECRET_KEY 가 설정되지 않았습니다. .env를 확인하세요."
-    );
-  }
-  if (!process.env.PUBLIC_BASE_URL) {
-    throw new Error(
-      "TOSS_MODE=live 이지만 PUBLIC_BASE_URL 이 설정되지 않았습니다 (예: https://posmosstudy-1.onrender.com)."
     );
   }
 }
@@ -95,73 +68,6 @@ export async function createLinkPayProduct(
     amount: input.amount,
   });
   return { productKey: result.productKey, url: result.url };
-}
-
-/**
- * 빌링키 등록: 카드번호를 우리가 직접 받지 않고, 토스페이먼츠 SDK 등록창을
- * 여는 우리 쪽 정적 페이지(/billing-register)로 안내한다.
- * 학부모가 그 페이지에서 카드 정보를 입력하면 successUrl(/api/billing/callback/success)로
- * authKey가 돌아오고, 거기서 실제 빌링키 발급 API를 호출한다.
- */
-export async function issueBillingKeyRegistration(
-  input: IssueBillingKeyInput
-): Promise<IssueBillingKeyResult> {
-  if (MODE === "mock") {
-    return {
-      registrationUrl: `https://mock.tosspayments.local/billing/register?customerKey=${input.customerKey}`,
-    };
-  }
-
-  assertLiveKeys();
-  const baseUrl = process.env.PUBLIC_BASE_URL!.replace(/\/$/, "");
-  const params = new URLSearchParams({
-    customerKey: input.customerKey,
-    amount: String(input.amount),
-    orderId: `billing-reg-${input.studentId}-${Date.now()}`,
-  });
-  return { registrationUrl: `${baseUrl}/billing-register?${params.toString()}` };
-}
-
-/** authKey + customerKey로 실제 빌링키를 발급받는다 (콜백 라우트에서만 호출됨). */
-export async function issueBillingKeyFromAuthKey(
-  authKey: string,
-  customerKey: string
-): Promise<{ billingKey: string; cardLast4?: string }> {
-  assertLiveKeys();
-  const result = await tossRequest<{
-    billingKey: string;
-    card?: { number?: string };
-  }>("/v1/billing/authorizations/issue", { authKey, customerKey });
-  const cardLast4 = result.card?.number?.slice(-4);
-  return { billingKey: result.billingKey, cardLast4 };
-}
-
-/**
- * 빌링키로 자동 결제 승인 요청.
- * mock 모드에서는 90% 확률로 성공하도록 시뮬레이션한다 (실패율이 높다는 문서 내용 반영).
- */
-export async function chargeWithBillingKey(
-  input: ChargeBillingInput
-): Promise<ChargeBillingResult> {
-  if (MODE === "mock") {
-    const success = Math.random() < 0.9;
-    return success
-      ? { success: true }
-      : { success: false, failReason: "CARD_LIMIT_EXCEEDED (mock)" };
-  }
-
-  assertLiveKeys();
-  try {
-    await tossRequest(`/v1/billing/${input.billingKey}`, {
-      customerKey: input.customerKey,
-      amount: input.amount,
-      orderId: `billing-${input.customerKey}-${Date.now()}`,
-      orderName: input.orderName,
-    });
-    return { success: true };
-  } catch (err) {
-    return { success: false, failReason: err instanceof Error ? err.message : "알 수 없는 오류" };
-  }
 }
 
 export const tossMode = MODE;

@@ -6,7 +6,6 @@ export interface Student {
   monthlyFee: number;
   status: string;
   thisMonthStatus?: string;
-  billingKey?: { status: string; cardLast4: string | null } | null;
 }
 
 export interface PaymentLink {
@@ -21,7 +20,6 @@ export interface PaymentLink {
 
 export interface PaymentHistoryItem {
   id: string;
-  type: string;
   amount: number;
   status: string;
   failReason: string | null;
@@ -31,13 +29,6 @@ export interface PaymentHistoryItem {
 export interface DashboardData {
   unpaidCount: number;
   unpaidStudents: { id: string; name: string; monthlyFee: number }[];
-  recentFailures: {
-    id: string;
-    amount: number;
-    failReason: string | null;
-    paidAt: string;
-    student: { name: string };
-  }[];
 }
 
 import { posPluginSdk } from "@tossplace/pos-plugin-sdk";
@@ -86,15 +77,11 @@ export const api = {
       Student & {
         paymentLinks: PaymentLink[];
         paymentHistory: PaymentHistoryItem[];
-        billingSchedule?: { dueDay: number; active: boolean } | null;
       }
     >(`/students/${id}`),
   createStudent: (data: Pick<Student, "name" | "guardianPhone" | "courseName" | "monthlyFee">) =>
     request<Student>("/students", "POST", data),
   sendPaymentLink: (studentId: string, amount: number, reason: string) =>
     request<PaymentLink>("/payment-links", "POST", { studentId, amount, reason }),
-  registerBilling: (studentId: string, dueDay: number) =>
-    request<{ registrationUrl: string }>("/billing/register", "POST", { studentId, dueDay }),
-  cancelBilling: (studentId: string) => request<void>(`/billing/${studentId}/cancel`, "POST"),
   getDashboard: () => request<DashboardData>("/dashboard"),
 };

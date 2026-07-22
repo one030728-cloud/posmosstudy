@@ -6,7 +6,6 @@ export const studentsRouter = Router();
 // 원생 목록 (이번 달 결제 상태 요약 포함)
 studentsRouter.get("/", async (_req, res) => {
   const students = await prisma.student.findMany({
-    include: { billingKey: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -36,8 +35,6 @@ studentsRouter.get("/:id", async (req, res) => {
   const student = await prisma.student.findUnique({
     where: { id: req.params.id },
     include: {
-      billingKey: true,
-      billingSchedule: true,
       paymentLinks: { orderBy: { sentAt: "desc" } },
       paymentHistory: { orderBy: { paidAt: "desc" } },
     },
