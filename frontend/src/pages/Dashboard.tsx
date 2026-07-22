@@ -14,8 +14,8 @@ export default function Dashboard() {
     });
   }, []);
 
-  if (error) return <p style={{ color: "#f04452" }}>에러: {error}</p>;
-  if (!data) return <p>불러오는 중...</p>;
+  if (error) return <p className="empty-state" style={{ color: "#f04452" }}>에러: {error}</p>;
+  if (!data) return <p className="empty-state">불러오는 중...</p>;
 
   return (
     <div>

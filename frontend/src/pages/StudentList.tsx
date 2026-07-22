@@ -29,9 +29,16 @@ export default function StudentList() {
       });
   }, []);
 
-  if (loading) return <p>불러오는 중...</p>;
-  if (error) return <p style={{ color: "#f04452" }}>에러: {error}</p>;
-  if (students.length === 0) return <p>등록된 원생이 없습니다. "원생 등록" 탭에서 추가하세요.</p>;
+  if (loading) return <p className="empty-state">불러오는 중...</p>;
+  if (error) return <p className="empty-state" style={{ color: "#f04452" }}>에러: {error}</p>;
+  if (students.length === 0)
+    return (
+      <p className="empty-state">
+        등록된 원생이 없습니다.
+        <br />
+        "원생 등록" 탭에서 추가하세요.
+      </p>
+    );
 
   return (
     <div>
@@ -41,7 +48,7 @@ export default function StudentList() {
             <div className="row">
               <div>
                 <strong>{s.name}</strong>
-                <div style={{ fontSize: 13, color: "#8b95a1" }}>
+                <div style={{ fontSize: 13, color: "#8b95a1", marginTop: 4 }}>
                   {s.courseName} · {s.monthlyFee.toLocaleString()}원
                 </div>
               </div>

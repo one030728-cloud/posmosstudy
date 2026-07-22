@@ -32,8 +32,8 @@ export default function StudentDetail() {
     reload();
   }, [id]);
 
-  if (error) return <p style={{ color: "#f04452" }}>에러: {error}</p>;
-  if (!student) return <p>불러오는 중...</p>;
+  if (error) return <p className="empty-state" style={{ color: "#f04452" }}>에러: {error}</p>;
+  if (!student) return <p className="empty-state">불러오는 중...</p>;
 
   async function sendLink() {
     if (!id || !amount || !reason) return;
