@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite는 Prisma enum을 지원하지 않아 String으로 관리한다.
+// StudentStatus: ACTIVE | PAUSED | WITHDRAWN
+// BillingKeyStatus: PENDING | ACTIVE | FAILED_REGISTRATION | REVOKED
+// PaymentLinkStatus: WAITING | PAID | EXPIRED | CANCELED
+// PaymentType: LINKPAY | BILLING
+// PaymentStatus: SUCCESS | FAILED
+
+model Student {
+  id            String   @id @default(cuid())
+  name          String
+  guardianPhone String
+  courseName    String
+  monthlyFee    Int
+  status        String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  billingKey      BillingKey?
+  billingSchedule BillingSchedule?
+  paymentLinks    PaymentLink[]
+  paymentHistory  PaymentHistory[]
+}
+
+model BillingKey {
+  id          String    @id @default(cuid())
+  studentId   String    @unique
+  student     Student   @relation(fields: [studentId], references: [id])
+  customerKey String    @unique
+  billingKey  String?
+  cardLast4   String?
+  status      String    @default("PENDING")
+  issuedAt    DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model PaymentLink {
+  id         String    @id @default(cuid())
+  studentId  String
+  student    Student   @relation(fields: [studentId], references: [id])
+  productKey String    @unique
+  url        String
+  amount     Int
+  reason     String
+  status     String    @default("WAITING")
+  sentAt     DateTime  @default(now())
+  paidAt     DateTime?
+}
+
+model PaymentHistory {
+  id         String   @id @default(cuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id])
+  type       String
+  amount     Int
+  status     String
+  failReason String?
+  paidAt     DateTime @default(now())
+}
+
+model BillingSchedule {
+  id         String   @id @default(cuid())
+  studentId  String   @unique
+  student    Student  @relation(fields: [studentId], references: [id])
+  dueDay     Int
+  nextRunAt  DateTime
+  retryCount Int      @default(0)
+  active     Boolean  @default(true)
+}
