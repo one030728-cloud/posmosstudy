@@ -13,39 +13,31 @@ a {
   color: inherit;
 }
 
-/* 토스 POS 네이티브 화면처럼: 짙은 남색 헤더 하나에 타이틀+탭을 같이 배치 */
-.topbar {
+/* 토스 POS 앱 자체의 다크 헤더/탭(주문·현황)이 이미 위에 떠 있으므로,
+   플러그인 콘텐츠 영역 안에서는 가벼운 흰 탭바만 둔다 (다크바 중복 방지) */
+.tabbar {
+  display: flex;
+  gap: 4px;
+  background: #fff;
+  border-bottom: 1px solid #e5e8eb;
+  padding: 0 16px;
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #17181c;
-  padding: 14px 16px 0;
-}
-
-.topbar-title {
-  display: block;
-  color: #fff;
-  font-weight: 700;
-  font-size: 16px;
-  margin-bottom: 12px;
-}
-
-.tabbar {
-  display: flex;
-  gap: 20px;
 }
 
 .tabbar a {
-  padding-bottom: 12px;
+  padding: 14px 8px 12px;
   text-decoration: none;
   color: #8b95a1;
   font-weight: 600;
   font-size: 14px;
   border-bottom: 2px solid transparent;
+  white-space: nowrap;
 }
 
 .tabbar a.active {
-  color: #fff;
+  color: #3182f6;
   border-bottom: 2px solid #3182f6;
 }
 

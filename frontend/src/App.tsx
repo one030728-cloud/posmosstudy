@@ -8,23 +8,20 @@ import BulkSend from "./pages/BulkSend";
 export default function App() {
   return (
     <div>
-      <header className="topbar">
-        <span className="topbar-title">학원 관리</span>
-        <nav className="tabbar">
-          <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")}>
-            원생 목록
-          </NavLink>
-          <NavLink to="/new" className={({ isActive }) => (isActive ? "active" : "")}>
-            원생 등록
-          </NavLink>
-          <NavLink to="/bulk-send" className={({ isActive }) => (isActive ? "active" : "")}>
-            일괄 발송
-          </NavLink>
-          <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "active" : "")}>
-            대시보드
-          </NavLink>
-        </nav>
-      </header>
+      <nav className="tabbar">
+        <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")}>
+          원생 목록
+        </NavLink>
+        <NavLink to="/new" className={({ isActive }) => (isActive ? "active" : "")}>
+          원생 등록
+        </NavLink>
+        <NavLink to="/bulk-send" className={({ isActive }) => (isActive ? "active" : "")}>
+          일괄 발송
+        </NavLink>
+        <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "active" : "")}>
+          대시보드
+        </NavLink>
+      </nav>
       <div className="container">
         <Routes>
           <Route path="/" element={<StudentList />} />
